@@ -8,3 +8,12 @@ The app have some interactive components and was made using `{shiny}`.
 
 ![](preview.png)
 
+## Run the app
+
+In order to run the app, you will need:
+
+- clone the repo
+- install all dependencies
+- run the `stock_analyzer.R` script. 
+
+For now, all UI and server will be together, but that is something that we'll seperate in the future.
