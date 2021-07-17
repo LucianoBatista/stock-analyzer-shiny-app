@@ -8,7 +8,7 @@ The app have some interactive components and was made using `{shiny}`.
 
 ![](preview.png)
 
-## Run the app
+## Running the app
 
 In order to run the app, you will need:
 
