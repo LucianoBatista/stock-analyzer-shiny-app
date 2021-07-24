@@ -9,6 +9,8 @@
 # LIBRARIES ----
 library(shiny)
 library(shinyWidgets)
+library(shinythemes)
+library(shinyjs)
 
 library(plotly)
 library(tidyquant)
@@ -24,84 +26,131 @@ stock_list_tbl <- get_stock_list("SP500")
 # controls to look and appearance of our web app
 
 # fluidPage() create a web page that we can add elements to it
-ui <- fluidPage(
+ui <- navbarPage(
   title = "Stock Analyzer",
-
-  # 1.0 Header ----
-  div(
-    h1("Stock Analyzer, by LUBA"),
-    p("This is the first mini-project completed in our Shiny Course")
-  ),
-
-  # 2.0 APP UI ----
-  div(
-    # columns keep things responsive!!!
-    column(
-      width = 4,
-      wellPanel(
-        pickerInput(
-          inputId = "stock_selection",
-          label = "Stock List (Pick One to Analyze)",
-          choices = stock_list_tbl$label,
-          multiple = F,
-          selected = stock_list_tbl %>% filter(label %>% str_detect("AAPL")) %>% pull(label),
-          options = pickerOptions(
-            liveSearch = T,
-            size = 10
+  collapsible = TRUE,
+  theme = shinytheme("flatly"),
+  
+  tabPanel(
+    title = "Analysis",
+    # CSS ----
+    # themeSelector(),
+    tags$head(
+      tags$link(
+        rel = "stylesheet",
+        type = "text/css",
+        href = "style.css"
+      )
+    ),
+    
+    # 1.0 Header ----
+    div(
+      class = "container",
+      id = "header",
+      h1(class = "page-header", "Stock Analyzer", tags$small("by LUBA")),
+      p(class = "lead", "This is the first mini-project completed in our Shiny Course")
+    ),
+    
+    # 2.0 APP UI ----
+    div(
+      class = "container",
+      id = "application_ui",
+      # columns keep things responsive!!!
+      column(
+        width = 4,
+        wellPanel(
+          useShinyjs(),
+          div(
+            id = "input_main",
+            pickerInput(
+              inputId = "stock_selection",
+              label = "Stock List (Pick One to Analyze)",
+              choices = stock_list_tbl$label,
+              multiple = F,
+              selected = stock_list_tbl %>% filter(label %>% str_detect("AAPL")) %>% pull(label),
+              options = pickerOptions(
+                liveSearch = T,
+                size = 10
+              )
+            )
+          ),
+          div(
+            id = "input_buttons",
+            actionButton(
+              inputId = "analyze",
+              label = "Analyze",
+              icon = icon("download")
+            ),
+            div(
+              class = "pull-right",
+              actionButton(
+                inputId = "settings_toggle",
+                label = NULL,
+                icon = icon("cog")
+              )
+            )
+          ),
+          div(
+            id = "input_settings",
+            hr(),
+            sliderInput(
+              inputId = "short_moving_avg",
+              label = "Short Moving Average",
+              value = 20,
+              min = 5,
+              max = 40,
+              step = 1
+            ),
+            sliderInput(
+              inputId = "long_moving_avg",
+              label = "Long Moving Average",
+              value = 60,
+              min = 50,
+              max = 120,
+              step = 1
+            )
+          ) %>% shinyjs::hidden()
+        )
+      ),
+      column(
+        width = 8,
+        div(
+          class = "panel",
+          div(
+            class = "panel-header",
+            h4(textOutput(outputId = "plot_header"))
+          ),
+          div(
+            # plotting
+            class = "panel-body",
+            plotlyOutput(outputId = "plotly_plot")
           )
-        ),
-        actionButton(
-          inputId = "analyze",
-          label = "Analyze",
-          icon = icon("download")
-        ),
-        sliderInput(
-          inputId = "short_moving_avg",
-          label = "Short Moving Average",
-          value = 20,
-          min = 5,
-          max = 40,
-          step = 1
-        ),
-        sliderInput(
-          inputId = "long_moving_avg",
-          label = "Long Moving Average",
-          value = 60,
-          min = 50,
-          max = 120,
-          step = 1
         )
       )
     ),
-    column(
-      width = 8,
-      div(
+    
+    # 3.0 Analyst commentary ----
+    div(
+      class = "container",
+      id = "commentary",
+      column(
+        width = 12,
         div(
-          h4(textOutput(outputId = "plot_header"))
-        ),
-        div(
-          # plotting
-          plotlyOutput(outputId = "plotly_plot")
-        )
-      )
-    )
-  ),
-
-  # 3.0 Analyst commentary ----
-  div(
-    column(
-      width = 12,
-      div(
-        div(
-          h4("Analyst Commentary")
-        ),
-        div(
-          verbatimTextOutput(outputId = "analyst_comment")
+          class = "panel",
+          div(
+            class = "panel-header",
+            h4("Analyst Commentary")
+          ),
+          div(
+            class = "panel-body",
+            verbatimTextOutput(outputId = "analyst_comment")
+          )
         )
       )
     )
   )
 )
+  
 
 # SERVER ----
 # This is where reactive code is run
@@ -158,6 +207,16 @@ server <- function(input, output, session) {
   )
 
   output$analyst_comment <- renderText(commentary())
+  
+  shinyjs::onclick(
+    id = "settings_toggle",
+    expr = {
+      shinyjs::toggle(
+        id = "input_settings",
+        anim = TRUE
+      )
+    }
+  )
 }
 
 # RUN APP ----
