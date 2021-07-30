@@ -19,7 +19,7 @@ info_card <- function(
   
   div(
     class = "panel panel-default",
-    syle = "padding: 0px;"
+    style = "padding: 0px;",
     div(
       class = "panel-body bg-default text-default",
       p(
