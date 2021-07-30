@@ -18,6 +18,7 @@ library(tidyverse)
 
 
 source(file = "00_scripts/stock_analysis_functions.R")
+source(file = "00_scripts/info_card.R")
 
 stock_list_tbl <- get_stock_list("SP500")
 
@@ -51,7 +52,42 @@ ui <- navbarPage(
       p(class = "lead", "This is the first mini-project completed in our Shiny Course")
     ),
     
-    # 2.0 APP UI ----
+    # 2.0 FAVORITES ----
+    div(
+      class = "container",
+      id = "favorite_container",
+      
+      div(
+        class = "container",
+        column(
+          width = 12,
+          h5("Favorites")
+        )
+      ),
+      div(
+        class = "container hidden-sm hidden-xs",
+        id = "favorite_cards",
+        column(
+          width = 3,
+          info_card(stock_name = "AAPL", short_mavg = 20, large_mavg = 60, increase_pct = .80)
+        ),
+        column(
+          width = 3,
+          info_card(stock_name = "NFLT", short_mavg = 20, large_mavg = 60, increase_pct = .80)
+        ),
+        column(
+          width = 3,
+          info_card(stock_name = "BSS3", short_mavg = 20, large_mavg = 60, increase_pct = .80)
+        ),
+        column(
+          width = 3,
+          info_card(stock_name = "ITSA", short_mavg = 20, large_mavg = 60, increase_pct = .80)
+        )
+      )
+    ),
+    
+    
+    # 3.0 APP UI ----
     div(
       class = "container",
       id = "application_ui",
